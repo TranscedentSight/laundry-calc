@@ -3,303 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>洗衣液精準用量計算器</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Inter & Noto Sans HK -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+HK:wght@400;500;700&display=swap" rel="stylesheet">
+  <title>精準洗衣液計算器</title>
   <style>
-    body {
-      font-family: 'Inter', 'Noto Sans HK', system-ui, -apple-system, sans-serif;
+    :root {
+      --primary: #2563eb;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --border: #e2e8f0;
     }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
+    .card { background: var(--card-bg); max-width: 440px; width: 100%; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid var(--border); }
+    h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 20px; text-align: center; }
+    .tab-group { display: flex; background: #f1f5f9; border-radius: 8px; padding: 4px; margin-bottom: 20px; }
+    .tab { flex: 1; text-align: center; padding: 10px; font-size: 0.9rem; font-weight: 600; border: none; background: transparent; cursor: pointer; border-radius: 6px; color: #64748b; }
+    .tab.active { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #475569; }
+    input[type="number"], select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; outline: none; }
+    input[type="number"]:focus, select:focus { border-color: var(--primary); }
+    .checkbox-group { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .checkbox-group input { width: 18px; height: 18px; }
+    .result-box { margin-top: 24px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 20px; text-align: center; }
+    .result-label { font-size: 0.85rem; color: #1e40af; font-weight: 600; }
+    .result-val { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin: 6px 0; }
+    .result-sub { font-size: 0.9rem; color: #3b82f6; font-weight: 500; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between p-4 sm:p-6 md:p-8">
-
-  <!-- 主容器 -->
-  <main class="max-w-xl w-full mx-auto bg-white rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
-    
-    <!-- 頂部標題區 -->
-    <header class="bg-gradient-to-br from-cyan-600 via-sky-600 to-blue-700 p-6 sm:p-8 text-white relative">
-      <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium tracking-wide mb-3">
-        <svg class="w-4 h-4 text-cyan-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
-        </svg>
-        紡織洗滌工程標準配比
-      </div>
-      <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">洗衣液精準用量計算器</h1>
-      <p class="text-cyan-100 text-sm mt-1">杜絕洗劑殘留發霉，唔使再靠感覺倒滿蓋！</p>
-    </header>
-
-    <!-- 計算器表單 -->
-    <div class="p-6 sm:p-8 space-y-6">
-
-      <!-- 1. 洗衣機類型切換 -->
-      <section class="space-y-2">
-        <label class="block text-sm font-semibold text-slate-700">1. 選擇洗衣機種類</label>
-        <div class="grid grid-cols-2 gap-3">
-          <button type="button" id="type-drum" onclick="selectWasherType('drum')"
-            class="flex flex-col items-center justify-center p-3.5 rounded-2xl border-2 transition-all duration-150 border-cyan-600 bg-cyan-50/50 text-cyan-900 font-semibold shadow-sm">
-            <span class="text-xl mb-1">🌀</span>
-            <span>滾筒式（大眼雞）</span>
-            <span class="text-[11px] font-normal text-slate-500 mt-0.5">省水摔打 · 浴比 1:4.5</span>
-          </button>
-
-          <button type="button" id="type-top" onclick="selectWasherType('top')"
-            class="flex flex-col items-center justify-center p-3.5 rounded-2xl border-2 transition-all duration-150 border-slate-200 hover:border-slate-300 bg-white text-slate-600 font-medium">
-            <span class="text-xl mb-1">🌊</span>
-            <span>直立式（波輪式）</span>
-            <span class="text-[11px] font-normal text-slate-500 mt-0.5">水流浸泡 · 浴比 1:11</span>
-          </button>
-        </div>
-      </section>
-
-      <!-- 2. 輸入參數（重量/水量切換） -->
-      <section class="space-y-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-        <div class="flex items-center justify-between">
-          <label id="input-label" for="param-input" class="text-sm font-semibold text-slate-700">
-            2. 實測乾衣重量 (kg)
-          </label>
-          <span id="quick-tip" class="text-xs text-slate-400">日常 1~2 人衣量約 2-3kg</span>
-        </div>
-
-        <div class="relative rounded-xl shadow-sm">
-          <input type="number" id="param-input" min="0.5" max="15" step="0.1" value="3.5"
-            oninput="calculate()"
-            class="block w-full rounded-xl border-slate-200 pl-4 pr-14 py-3 text-lg font-semibold text-slate-800 focus:border-cyan-500 focus:ring-cyan-500 bg-white border outline-none transition" />
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
-            <span id="input-unit" class="text-slate-500 text-sm font-medium">kg</span>
-          </div>
-        </div>
-
-        <!-- 快速加減掣 -->
-        <div class="flex items-center gap-2 pt-1">
-          <span class="text-xs text-slate-500">快速調整：</span>
-          <button type="button" onclick="adjustInput(-0.5)" class="px-2.5 py-1 text-xs bg-white border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-700">-0.5</button>
-          <button type="button" onclick="adjustInput(0.5)" class="px-2.5 py-1 text-xs bg-white border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-700">+0.5</button>
-          <button type="button" onclick="setInputVal(2.0)" class="px-2.5 py-1 text-xs bg-white border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-700">輕量 2kg</button>
-          <button type="button" onclick="setInputVal(4.5)" class="px-2.5 py-1 text-xs bg-white border border-slate-200 rounded-lg hover:bg-slate-100 text-slate-700">半桶 4.5kg</button>
-        </div>
-      </section>
-
-      <!-- 3. 洗衣液濃度選擇 -->
-      <section class="space-y-2">
-        <label class="block text-sm font-semibold text-slate-700">3. 洗衣液濃度係數</label>
-        <div class="grid grid-cols-3 gap-2">
-          <label class="cursor-pointer">
-            <input type="radio" name="concentration" value="1" checked onchange="calculate()" class="peer sr-only">
-            <div class="p-2.5 text-center rounded-xl border border-slate-200 peer-checked:border-cyan-600 peer-checked:bg-cyan-50 peer-checked:text-cyan-800 text-xs sm:text-sm font-medium transition">
-              標準款 (1x)
-              <div class="text-[10px] text-slate-400 peer-checked:text-cyan-600">一般大瓶裝</div>
-            </div>
-          </label>
-
-          <label class="cursor-pointer">
-            <input type="radio" name="concentration" value="2" onchange="calculate()" class="peer sr-only">
-            <div class="p-2.5 text-center rounded-xl border border-slate-200 peer-checked:border-cyan-600 peer-checked:bg-cyan-50 peer-checked:text-cyan-800 text-xs sm:text-sm font-medium transition">
-              超濃縮 (2x)
-              <div class="text-[10px] text-slate-400 peer-checked:text-cyan-600">標示 Ultra / 濃縮</div>
-            </div>
-          </label>
-
-          <label class="cursor-pointer">
-            <input type="radio" name="concentration" value="3" onchange="calculate()" class="peer sr-only">
-            <div class="p-2.5 text-center rounded-xl border border-slate-200 peer-checked:border-cyan-600 peer-checked:bg-cyan-50 peer-checked:text-cyan-800 text-xs sm:text-sm font-medium transition">
-              極濃縮 (3x)
-              <div class="text-[10px] text-slate-400 peer-checked:text-cyan-600">按壓瓶 / 泵裝</div>
-            </div>
-          </label>
-        </div>
-      </section>
-
-      <!-- 4. 水質環境校正（軟水模式） -->
-      <section class="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
-        <div class="flex items-center gap-2.5">
-          <span class="text-lg">💧</span>
-          <div>
-            <div class="text-sm font-semibold text-slate-700">澳門 / 香港軟水校正</div>
-            <div class="text-xs text-slate-400">港澳自來水偏軟容易起泡，自動減量 15% 防殘留</div>
-          </div>
-        </div>
-        <label class="relative inline-flex items-center cursor-pointer">
-          <input type="checkbox" id="soft-water" checked onchange="calculate()" class="sr-only peer">
-          <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600"></div>
-        </label>
-      </section>
-
-      <!-- 5. 計算結果卡片 -->
-      <section class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-inner space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-700/80 pb-3">
-          <span class="text-sm text-slate-300">建議精準用量</span>
-          <span class="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-0.5 rounded-full border border-cyan-500/30">
-            最佳活性配比
-          </span>
-        </div>
-
-        <div class="flex items-baseline gap-2">
-          <span id="result-ml" class="text-4xl sm:text-5xl font-extrabold tracking-tight text-cyan-400">22.8</span>
-          <span class="text-xl font-semibold text-slate-300">毫升 (ml)</span>
-        </div>
-
-        <!-- 瓶蓋與水量對照 -->
-        <div class="grid grid-cols-2 gap-3 pt-2 text-xs sm:text-sm">
-          <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
-            <span class="text-slate-400 block mb-1">標準瓶蓋（約 50ml）：</span>
-            <span id="result-cap" class="text-slate-200 font-semibold text-sm sm:text-base">約 0.5 瓶蓋</span>
-          </div>
-
-          <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
-            <span class="text-slate-400 block mb-1">推算洗滌注水：</span>
-            <span id="result-water" class="text-slate-200 font-semibold text-sm sm:text-base">約 15.8 公升 (L)</span>
-          </div>
-        </div>
-
-        <!-- 建議用具提示 -->
-        <div class="text-[12px] text-slate-400 pt-1 flex items-start gap-1.5">
-          <svg class="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <span id="result-tool">建議使用 50ml 帶刻度藥杯或針筒精準量取，切勿使用原裝大瓶蓋直接估計。</span>
-        </div>
-      </section>
-
-      <!-- 額外指引折疊區 -->
-      <footer class="pt-2 text-xs text-slate-500 space-y-1.5 border-t border-slate-100">
-        <p class="font-medium text-slate-600">💡 精準洗滌備註：</p>
-        <ul class="list-disc pl-4 space-y-1 text-slate-500">
-          <li><strong>滾筒式（大眼雞）：</strong>靠摔打清潔，過多水分或泡沫會減弱拍打衝擊力，嚴禁倒過多。</li>
-          <li><strong>直立波輪式：</strong>需保證水位剛好完全覆蓋衣物，衣物若浮出水面需加強水量。</li>
-          <li>洗完如果摸落有滑潺潺感覺，代表洗劑依然超標，下次應再減 10–20%。</li>
-        </ul>
-      </footer>
-
+<body>
+  <div class="card">
+    <h1>🧴 精準洗衣液計算器</h1>
+    <div class="tab-group">
+      <button class="tab active" id="btnTop" onclick="setMode('top')">直立波輪式</button>
+      <button class="tab" id="btnDrum" onclick="setMode('drum')">滾筒式 (大眼雞)</button>
     </div>
-  </main>
 
-  <footer class="text-center text-xs text-slate-400 mt-6 mb-2">
-    洗衣液精準配比計算器 · 專為健康環保與長久護衣設計
-  </footer>
+    <!-- 預設顯示直立式水量輸入 -->
+    <div class="form-group" id="waterGroup">
+      <label>洗衣機顯示水量 (L)</label>
+      <input type="number" id="waterInput" value="40" step="5" min="10" oninput="calculate()">
+    </div>
 
-  <!-- 業務邏輯腳本 -->
-  <script>
-    // 預設狀態
-    let currentWasherType = 'drum'; // 'drum' 或 'top'
+    <!-- 滾筒式乾衣重量輸入（預設隱藏） -->
+    <div class="form-group" id="weightGroup" style="display:none;">
+      <label>實測乾衣重量 (kg)</label>
+      <input type="number" id="weightInput" value="3.5" step="0.1" min="0.5" oninput="calculate()">
+    </div>
 
-    // 切換洗衣機種類
-    function selectWasherType(type) {
-      currentWasherType = type;
-      const btnDrum = document.getElementById('type-drum');
-      const btnTop = document.getElementById('type-top');
-      const inputLabel = document.getElementById('input-label');
-      const quickTip = document.getElementById('quick-tip');
-
-      if (type === 'drum') {
-        // 滾筒樣式啟用
-        btnDrum.className = "flex flex-col items-center justify-center p-3.5 rounded-2xl border-2 transition-all duration-150 border-cyan-600 bg-cyan-50/50 text-cyan-900 font-semibold shadow-sm";
-        btnTop.className = "flex flex-col items-center justify-center p-3.5 rounded-2xl border-2 transition-all duration-150 border-slate-200 hover:border-slate-300 bg-white text-slate-600 font-medium";
-        inputLabel.innerText = "2. 實測乾衣重量 (kg)";
-        quickTip.innerText = "滾筒式標準浴比 1:4.5";
-      } else {
-        // 直立式樣式啟用
-        btnTop.className = "flex flex-col items-center justify-center p-3.5 rounded-2xl border-2 transition-all duration-150 border-cyan-600 bg-cyan-50/50 text-cyan-900 font-semibold shadow-sm";
-        btnDrum.className = "flex flex-col items-center justify-center p-3.5 rounded-2xl border-2 transition-all duration-150 border-slate-200 hover:border-slate-300 bg-white text-slate-600 font-medium";
-        inputLabel.innerText = "2. 實測乾衣重量 (kg)";
-        quickTip.innerText = "波輪式標準浴比 1:11";
-      }
-
-      calculate();
-    }
-
-    // 快速增減數值
-    function adjustInput(amount) {
-      const input = document.getElementById('param-input');
-      let val = parseFloat(input.value) || 0;
-      val = Math.max(0.5, Math.min(15, val + amount));
-      input.value = val.toFixed(1);
-      calculate();
-    }
-
-    // 快捷設定數值
-    function setInputVal(val) {
-      const input = document.getElementById('param-input');
-      input.value = val.toFixed(1);
-      calculate();
-    }
-
-    // 核心計算公式
-    function calculate() {
-      const weight = parseFloat(document.getElementById('param-input').value) || 0;
-      const concentration = parseFloat(document.querySelector('input[name="concentration"]:checked').value) || 1;
-      const isSoftWater = document.getElementById('soft-water').checked;
-
-      if (weight <= 0) {
-        document.getElementById('result-ml').innerText = "0.0";
-        document.getElementById('result-cap').innerText = "0 瓶蓋";
-        document.getElementById('result-water').innerText = "0 公升";
-        return;
-      }
-
-      let waterLiters = 0;
-      let baseDetergentMl = 0;
-
-      if (currentWasherType === 'drum') {
-        // 滾筒式（大眼雞）：
-        // 標準浴比 1:4.5；每 1kg 乾衣基準洗衣液約 6.5ml (1x)
-        waterLiters = weight * 4.5;
-        baseDetergentMl = weight * 6.5;
-      } else {
-        // 直立式（波輪式）：
-        // 標準浴比 1:11；直立式靠整桶水稀釋，每 10L 水約需 8.0ml (1x)
-        waterLiters = weight * 11.0;
-        baseDetergentMl = (waterLiters / 10.0) * 8.0;
-      }
-
-      // 濃縮係數折算
-      let finalMl = baseDetergentMl / concentration;
-
-      // 軟水系數校正（港澳水質軟，減 15%）
-      if (isSoftWater) {
-        finalMl = finalMl * 0.85;
-      }
-
-      // 顯示數值四捨五入保留一位小數
-      document.getElementById('result-ml').innerText = finalMl.toFixed(1);
-      document.getElementById('result-water').innerText = `約 ${waterLiters.toFixed(1)} 公升 (L)`;
-
-      // 計算瓶蓋份量（假定常見標準蓋為 50ml）
-      const standardCapVolume = 50.0;
-      const capRatio = finalMl / standardCapVolume;
-      let capDesc = "";
-      if (capRatio < 0.2) {
-        capDesc = `約 1/5 蓋底 (${finalMl.toFixed(0)}ml)`;
-      } else if (capRatio < 0.4) {
-        capDesc = `約 1/3 瓶蓋 (${finalMl.toFixed(0)}ml)`;
-      } else if (capRatio < 0.65) {
-        capDesc = `約 半瓶蓋 (${finalMl.toFixed(0)}ml)`;
-      } else if (capRatio < 0.85) {
-        capDesc = `約 3/4 瓶蓋 (${finalMl.toFixed(0)}ml)`;
-      } else {
-        capDesc = `約 1 滿蓋 (${finalMl.toFixed(0)}ml)`;
-      }
-      document.getElementById('result-cap').innerText = capDesc;
-
-      // 推薦量具建議
-      const toolAdvice = document.getElementById('result-tool');
-      if (finalMl <= 20) {
-        toolAdvice.innerText = "用量極精細，強烈建議使用 20ml 針筒或藥用量杯，避免使用大瓶蓋。";
-      } else if (finalMl <= 45) {
-        toolAdvice.innerText = "建議使用 50ml 帶刻度小量杯，能確保水質清爽無殘留。";
-      } else {
-        toolAdvice.innerText = "衣物量較大，請注意主洗時泡沫是否溢出，必要時可加設一次過水（Extra Rinse）。";
-      }
-    }
-
-    // 頁面載入完成時自動計算一次
-    window.onload = function() {
-      calculate();
-    };
-  </script>
-</body>
-</html>
+    <div class="
