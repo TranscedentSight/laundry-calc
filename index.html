@@ -51,4 +51,65 @@
       <input type="number" id="weightInput" value="3.5" step="0.1" min="0.5" oninput="calculate()">
     </div>
 
-    <div class="
+    <div class="form-group">
+      <label>洗衣液濃度類型</label>
+      <select id="typeSelect" onchange="calculate()">
+        <option value="1">普通標準款</option>
+        <option value="0.5">超濃縮款 (2x / 3x / Ultra / 納米樂)</option>
+      </select>
+    </div>
+
+    <div class="checkbox-group">
+      <input type="checkbox" id="softWater" checked onchange="calculate()">
+      <label for="softWater" style="margin:0; cursor:pointer;">港澳軟水校正 (自動扣減 15% 避免殘留)</label>
+    </div>
+
+    <div class="result-box">
+      <div class="result-label">精準建議投放量</div>
+      <div class="result-val" id="resMl">23.8 ml</div>
+      <div class="result-sub" id="resCap">約 0.5 個標準瓶蓋 (以 50ml 蓋計)</div>
+    </div>
+  </div>
+
+  <script>
+    // 預設模式設為直立式 'top'
+    let mode = 'top';
+
+    function setMode(m) {
+      mode = m;
+      document.getElementById('btnTop').className = m === 'top' ? 'tab active' : 'tab';
+      document.getElementById('btnDrum').className = m === 'drum' ? 'tab active' : 'tab';
+      document.getElementById('waterGroup').style.display = m === 'top' ? 'block' : 'none';
+      document.getElementById('weightGroup').style.display = m === 'drum' ? 'block' : 'none';
+      calculate();
+    }
+
+    function calculate() {
+      const conc = parseFloat(document.getElementById('typeSelect').value);
+      const isSoft = document.getElementById('softWater').checked;
+      let ml = 0;
+
+      if (mode === 'top') {
+        // 直立式計算：水量 (L) * 0.7 * 濃度
+        const wtWater = parseFloat(document.getElementById('waterInput').value) || 0;
+        ml = wtWater * 0.7 * conc;
+      } else {
+        // 滾筒式計算：乾衣重 (kg) * 5.5 * 濃度
+        const wt = parseFloat(document.getElementById('weightInput').value) || 0;
+        ml = wt * 5.5 * conc;
+      }
+
+      // 港澳軟水扣減 15%
+      if (isSoft) ml *= 0.85;
+      ml = Math.max(0, ml);
+
+      document.getElementById('resMl').innerText = ml.toFixed(1) + ' ml';
+      const caps = (ml / 50).toFixed(1);
+      document.getElementById('resCap').innerText = '約 ' + caps + ' 個標準瓶蓋 (以 50ml 蓋計)';
+    }
+
+    // 初始化直接以直立式執行一次計算
+    calculate();
+  </script>
+</body>
+</html>
